@@ -1,3 +1,3 @@
 # Backend project
 
-A backend project in javaScript.
+A backend project in JavaScript.
