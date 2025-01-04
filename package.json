@@ -1,0 +1,15 @@
+{
+  "name": "yt_backend",
+  "version": "1.0.0",
+  "description": "A backend project",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": [
+    "javascript",
+    "backend"
+  ],
+  "author": "Anshika Gupta",
+  "license": "ISC"
+}
