@@ -49,12 +49,17 @@ const userSchema = new mongoose.Schema(
 
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
+  console.log("Original password:", this.password);
   this.password = await bcrypt.hash(this.password, 10); //10 denotes number of rounds
+  console.log("Hashed password:", this.password);
   next();
 });
 
 userSchema.methods.isPasswordCorrect = async function (password) {
   //create own method
+  if (!this.password) {
+    throw new Error("Password not set for this user.");
+  }
   return await bcrypt.compare(password, this.password);
 };
 
