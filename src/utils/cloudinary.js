@@ -1,6 +1,7 @@
 import { v2 as cloudinary } from "cloudinary";
 import { response } from "express";
 import fs, { unlinkSync } from "fs";
+import { ApiError } from "./apiError.js";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -25,4 +26,13 @@ const uploadOnCloudinary = async (localFilePath) => {
   }
 };
 
-export { uploadOnCloudinary };
+const deleteFromCloudinary = async (localFilePath) => {
+  try {
+    const publicId = localFilePath.split("/").pop().split(".")[0];
+    await cloudinary.uploader.destroy(publicId);
+  } catch (error) {
+    throw new ApiError(400, error?.message || "something went wrong...");
+  }
+};
+
+export { uploadOnCloudinary, deleteFromCloudinary };

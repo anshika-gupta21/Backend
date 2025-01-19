@@ -1,7 +1,10 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/apiError.js";
 import { User } from "../models/user.models.js";
-import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import {
+  uploadOnCloudinary,
+  deleteFromCloudinary,
+} from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/apiResponse.js";
 import jwt from "jsonwebtoken";
 
@@ -260,11 +263,19 @@ const updateAvatar = asyncHandler(async (req, res) => {
   const avatarLocalPath = req.file?.path;
   if (!avatarLocalPath) throw new ApiError(400, "Avatar file is missing!");
 
+  //delete old avatar
+
+  const user = await User.findById(req.user?._id).select("avatar");
+  currentAvatarUrl = user?.avatar;
+
+  if (currentAvatarUrl) await deleteFromCloudinary(currentAvatarUrl);
+
+  //updating new avatar
   const avatar = await uploadOnCloudinary(avatarLocalPath);
 
   if (!avatar.url) throw new ApiError(400, "Error while uploading on avatar!");
 
-  const user = await User.findByIdAndUpdate(
+  const updatedUser = await User.findByIdAndUpdate(
     req.user?._id,
     {
       $set: {
@@ -276,7 +287,7 @@ const updateAvatar = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .json(new ApiResponse(200, user, "Avatar updated Successfully!!"));
+    .json(new ApiResponse(200, updatedUser, "Avatar updated Successfully!!"));
 });
 
 const updateCoverImage = asyncHandler(async (req, res) => {
@@ -284,12 +295,20 @@ const updateCoverImage = asyncHandler(async (req, res) => {
   if (!coverImageLocalPath)
     throw new ApiError(400, "Cover Image file is missing!");
 
+  //deleting
+
+  const user = await User.findById(req.user?._id).select("coverImage");
+  currentCoverUrl = user?.coverImage;
+
+  if (currentCoverUrl) await deleteFromCloudinary(currentCoverUrl);
+
+  //updating
   const coverImage = await uploadOnCloudinary(coverImageLocalPath);
 
   if (!coverImage.url)
     throw new ApiError(400, "Error while uploading on Cover Image!");
 
-  const user = await User.findByIdAndUpdate(
+  const updatedUser = await User.findByIdAndUpdate(
     req.user?._id,
     {
       $set: {
@@ -301,8 +320,11 @@ const updateCoverImage = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .json(new ApiResponse(200, user, "Cover Image updated Successfully!!"));
+    .json(
+      new ApiResponse(200, updatedUser, "Cover Image updated Successfully!!")
+    );
 });
+
 export {
   registerUser,
   loginUser,
