@@ -64,7 +64,7 @@ const registerUser = asyncHandler(async (req, res) => {
     Array.isArray(req.files.coverImage) &&
     req.files.coverImage.length > 0
   )
-    coverImageLocalPath = req.files.coverImage[0].path;
+    coverImageLocalPath = req.files.coverImage[0]?.path;
 
   if (!avatarLocalPath) throw new ApiError(400, "Avatar file is required");
 
@@ -268,7 +268,7 @@ const updateAvatar = asyncHandler(async (req, res) => {
   //delete old avatar
 
   const user = await User.findById(req.user?._id).select("avatar");
-  currentAvatarUrl = user?.avatar;
+  const currentAvatarUrl = user?.avatar;
 
   if (currentAvatarUrl) await deleteFromCloudinary(currentAvatarUrl);
 
@@ -294,8 +294,17 @@ const updateAvatar = asyncHandler(async (req, res) => {
 
 const updateCoverImage = asyncHandler(async (req, res) => {
   const coverImageLocalPath = req.file?.path;
-  if (!coverImageLocalPath)
-    throw new ApiError(400, "Cover Image file is missing!");
+  if (!coverImageLocalPath) {
+    return res
+      .status(400)
+      .json(
+        new ApiResponse(
+          400,
+          null,
+          "Cover Image file is missing. Update cannot be performed."
+        )
+      );
+  }
 
   //deleting
 
@@ -397,7 +406,7 @@ const getUserWatchHistory = asyncHandler(async (req, res) => {
   const user = await User.aggregate([
     {
       $match: {
-        _id: mongoose.Types.ObjectId(req.user._id),
+        _id: new mongoose.Types.ObjectId(req.user._id),
       },
     },
     {
@@ -458,5 +467,5 @@ export {
   updateAvatar,
   updateCoverImage,
   getUserChannelProfile,
-  getUserWatchHistory
+  getUserWatchHistory,
 };
