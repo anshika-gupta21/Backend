@@ -39,5 +39,6 @@ const videoSchema = new Schema(
   { timestamps: true }
 );
 
-videoSchema.plugin(mongooseAggregatePaginate);
+videoSchema.plugin(mongooseAggregatePaginate);  //This can be particularly useful when dealing with large datasets, 
+// as it allows you to fetch and display data in manageable chunks.
 export const Video = mongoose.model("Video", videoSchema);
