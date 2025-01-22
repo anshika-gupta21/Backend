@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 
+//whenever a channel is subscriv=bed, new document is created which contains subscriber and channel
+
 const subscriptionSchema = new mongoose.Schema(
   {
     subscriber: {
