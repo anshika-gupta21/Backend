@@ -1,4 +1,4 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Schema, Types } from "mongoose";
 
 const likeSchema = new Schema(
   {
@@ -13,6 +13,10 @@ const likeSchema = new Schema(
     video: {
       type: Schema.Types.ObjectId,
       ref: "Video",
+    },
+    tweet: {
+      type: Schema.Types.ObjectId,
+      ref: "Tweet",
     },
   },
   { timestamps: true }
