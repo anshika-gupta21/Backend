@@ -3,6 +3,7 @@ import { verifyJWT } from "../middlewares/auth.middlewares.js";
 import {
   addVideo,
   deleteVideo,
+  getVideoById,
   togglePublishStatus,
   updateVideo,
 } from "../controllers/video.controller.js";
@@ -23,6 +24,6 @@ router.route("/upload-video").post(
   ]),
   addVideo
 );
-router.route("/:videoId").delete(deleteVideo).patch(upload.single("thumbnail"), updateVideo);
+router.route("/:videoId").delete(deleteVideo).patch(upload.single("thumbnail"), updateVideo).get(getVideoById);
 router.route("/toggle-publish-status/:videoId").patch(togglePublishStatus);
 export default router;
