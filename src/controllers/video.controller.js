@@ -286,10 +286,89 @@ const getVideoById = asyncHandler(async (req, res) => {
       )
     );
 });
+
+const getAllVideos = asyncHandler(async (req, res) => {
+  let {
+    page = 1,
+    limit = 10,
+    query = "",
+    sortBy = "createdAt",
+    sortType = "desc",
+  } = req.query;
+
+  page = parseInt(page) || 1; //converts to string
+  limit = parseInt(limit) || 1;
+
+  console.log("query:", query);
+  console.log("sortBy:", sortBy);
+  console.log("sortType:", sortType);
+  const videos = await Video.aggregate([
+    {
+      $match: query
+        ? {
+            $or: [
+              { title: { $regex: query, $options: "i" } }, //options:i makes case-insensitive
+              { description: { $regex: query, $options: "i" } }, //regex: partial search
+            ],
+          }
+        : {}, //returns all documents
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "owner",
+        foreignField: "_id",
+        as: "videoBy",
+        pipeline: [
+          {
+            $project: {
+              fullName: 1,
+              _id: 0,
+              username: 1,
+              avatar: 1,
+            },
+          },
+        ],
+      },
+    },
+    {
+      $unwind: "$videoBy",
+    },
+    {
+      $project: {
+        thumbnail: 1,
+        title: 1,
+        description: 1,
+        videoFile: 1,
+        createdAt: 1,
+        videoBy: 1,
+      },
+    },
+    {
+      $sort: {
+        [sortBy]: sortType === "desc" ? -1 : 1,
+      },
+    },
+    {
+      $skip: (page - 1) * limit,
+    },
+    {
+      $limit: limit,
+    },
+  ]);
+
+  if (videos.length === 0) throw new ApiError(404, "No matching video found.");
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, videos, "Videos fetched successfully!"));
+});
+
 export {
   addVideo,
   deleteVideo,
   togglePublishStatus,
   updateVideo,
   getVideoById,
+  getAllVideos,
 };
