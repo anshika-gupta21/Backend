@@ -26,6 +26,7 @@ import healthRouter from "./routes/healthcheck.routes.js";
 import likeRouter from "./routes/like.routes.js";
 import videoRouter from "./routes/video.routes.js";
 import subscriptionRouter from "./routes/subscription.routes.js";
+import dashboardRouter from "./routes/dashboard.routes.js";
 
 //routes declaration
 
@@ -37,5 +38,6 @@ app.use("/api/v1/healthcheck", healthRouter);
 app.use("/api/v1/likes", likeRouter);
 app.use("/api/v1/videos", videoRouter);
 app.use("/api/v1/subscriptions", subscriptionRouter);
+app.use("/api/v1/dashboard", dashboardRouter);
 
 export default app;
